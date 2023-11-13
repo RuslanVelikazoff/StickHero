@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -30,6 +29,8 @@ public class GameManager : MonoBehaviour
     private TMP_Text scoreText, scoreEndText, diamondsText, highScoreText;
 
     private GameObject currentPillar, nextPillar, currentStick, player;
+
+    private Animator animator;
 
     private int score, diamonds, highScore;
 
@@ -68,6 +69,7 @@ public class GameManager : MonoBehaviour
         highScoreText.text = highScore.ToString();
 
         CreateStartObjects();
+        animator = FindObjectOfType<Animator>();
         cameraOffsetX = currentCamera.transform.position.x - player.transform.position.x;
 
         if(StateManager.instance.hasSceneStarted)
@@ -148,6 +150,7 @@ public class GameManager : MonoBehaviour
 
         if(!result || !result.collider.CompareTag("Platform"))
         {
+            animator.SetBool("Die", true);
             player.GetComponent<Rigidbody2D>().gravityScale = 1f;
             x = Rotate(currentStick.transform, endRotateTransform, 0.5f);
             yield return x;
@@ -272,9 +275,9 @@ public class GameManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 
-    //Helper Functions
     IEnumerator Move(Transform currentTransform,Vector3 target,float time)
     {
+        animator.SetBool("Walk", true);
         var passed = 0f;
         var init = currentTransform.transform.position;
         while(passed < time)
@@ -285,6 +288,7 @@ public class GameManager : MonoBehaviour
             currentTransform.position = current;
             yield return null;
         }
+        animator.SetBool("Walk", false);
     }
 
     IEnumerator Rotate(Transform currentTransform, Transform target, float time)
